@@ -10,3 +10,9 @@ spring:
         dialect: tech.ydb.hibernate.dialect.YdbDialect
     hibernate:
       ddl-auto: update
+
+gg:
+  jte:
+    development-mode: ${JTE_DEV_MODE:true}
+    template-location: src/main/jte
+    template-suffix: .jte

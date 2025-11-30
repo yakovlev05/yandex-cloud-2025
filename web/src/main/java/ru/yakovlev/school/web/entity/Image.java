@@ -22,6 +22,12 @@ public class Image {
     @Column(name = "status", nullable = false)
     private ImageStatus status;
 
+    @Column(name = "prompt", nullable = false, columnDefinition = "TEXT")
+    private String prompt;
+
+    @Column(name = "description", nullable = false, length = 500)
+    private String description;
+
     @UpdateTimestamp
     @Column(name = "updated_at", nullable = false)
     private Instant updatedAt;

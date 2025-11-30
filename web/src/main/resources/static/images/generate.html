@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="/css/global.css">
+    <link rel="stylesheet" href="/css/images/generate.css">
+    <title>Сгенерировать изображение</title>
+</head>
+<body>
+<div>
+    <h1>Сгенерировать изображение</h1>
+    <p>Введите промпт и нажмите кнопку</p>
+    <form action="generate" method="post" class=form-generate>
+
+        <div class="prompt-box">
+            <label for="prompt">Введите промпт: </label>
+            <textarea rows="5" name="prompt" id="prompt" placeholder="Кот играет с клубком" required></textarea>
+        </div>
+
+        <input type="submit" value="Генерация">
+    </form>
+</div>
+</body>
+</html>

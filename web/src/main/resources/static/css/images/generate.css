@@ -1,0 +1,19 @@
+body {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+}
+
+.form-generate {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.prompt-box {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
