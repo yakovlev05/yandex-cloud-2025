@@ -8,3 +8,5 @@ spring:
     properties:
       hibernate:
         dialect: tech.ydb.hibernate.dialect.YdbDialect
+    hibernate:
+      ddl-auto: update
