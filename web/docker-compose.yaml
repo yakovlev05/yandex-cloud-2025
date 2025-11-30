@@ -1,0 +1,31 @@
+name: yc-2025
+
+networks:
+  common:
+
+volumes:
+  ydb_data:
+  ydb_certs:
+
+services:
+  ydb:
+    image: ydbplatform/local-ydb:25.1.4.7
+    restart: unless-stopped
+    hostname: localhost # change this - change url host in application properties
+    platform: linux/amd64
+    environment:
+      - GRPC_TLS_PORT=2135
+      - GRPC_PORT=2136
+      - MON_PORT=8765
+      - YDB_KAFKA_PROXY_PORT=9092
+      - POSTGRES_USER=${POSTGRES_USER:-user}
+    ports:
+      - '2135:2135'
+      - '2136:2136'
+      - '8765:8765' # web ui
+      - '9092:9092'
+    volumes:
+      - ydb_data:/ydb_data
+      - ydb_certs:/ydb_certs
+    networks:
+      - common
