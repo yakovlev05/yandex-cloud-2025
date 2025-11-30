@@ -35,4 +35,13 @@ public class Image {
     @CreationTimestamp
     @Column(name = "created_at", nullable = false)
     private Instant createdAt;
+
+    public Image() {
+    }
+
+    public Image(ImageStatus status, String prompt, String description) {
+        this.status = status;
+        this.prompt = prompt;
+        this.description = description;
+    }
 }
