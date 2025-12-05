@@ -41,3 +41,44 @@
 Можно из дополнительно взять Identity and Access Management + мониторинг (правда в Яндекс мониторинг не хочется, только
 если grafana и prometheus прикрутить, хотя это не считается вероятно)
 
+# Запуск в облаке
+
+## Установка и [настройка](https://yandex.cloud/ru/docs/tutorials/infrastructure-management/terraform-quickstart) terraform
+
+1. Перейти на сайт [terraform](https://developer.hashicorp.com/terraform/install) и скачать под нужную ОС.
+2. Создайте сервисный аккаунт в облаке Яндекс
+    - перейдите в **Identity and Access Management**
+    - создайте сервисный аккаунт
+    - назначьте роль **admin**
+    - создайте IAM токен (живет не более 12 часов) и положите в переменную окружения. Это можно сделать через
+      `export YC_TOKEN=$(yc iam create-token --impersonate-service-account-id <идентификатор_сервисного_аккаунта>)`
+    - укажите в переменной окружения **идентификатор облака**. `export YC_CLOUD_ID=$(yc config get cloud-id)`
+    - укажите в переменной окружения **идентификатор каталога**. `export YC_FOLDER_ID=$(yc config get folder-id)`
+    - на это все, далее работаем с конфигом terraform
+3. Откройте файл `nano ~/.terraformrc` (Windows - %APPDATA%). Вставьте в него:
+
+```
+provider_installation {
+  network_mirror {
+    url = "https://terraform-mirror.yandexcloud.net/"
+    include = ["registry.terraform.io/*/*"]
+  }
+  direct {
+    exclude = ["registry.terraform.io/*/*"]
+  }
+}
+```
+
+4. Конфигурация terraform. Скачайте **файл??????** - это готовая конфигурация.
+5. В директории с `main.tf` выполните `terraform init`
+6. Можно запускать. Введите `terraform apply`. Шпаргалка:
+    - `terraform validate` - провалидировать конфигурацию
+    - `terraform fmte` - форматирование конфигурации
+    - `terraform plan` - вывод всех ресурсов, которые будут созданы. Просто для проверки
+7. По завершении удалите всё - `terraform destroy`
+
+Документации по ресурсам, используемых в terraform (одно и то же, но в разных местах):
+
+- https://registry.terraform.io/providers/yandex-cloud/yandex/latest/docs
+- https://yandex.cloud/ru/docs/terraform
+
