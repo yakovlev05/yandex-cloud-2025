@@ -16,3 +16,4 @@ gg:
     development-mode: ${JTE_DEV_MODE:true}
     template-location: src/main/jte
     template-suffix: .jte
+
