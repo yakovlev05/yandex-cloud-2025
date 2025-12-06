@@ -11,6 +11,8 @@ spring:
     hibernate:
       ddl-auto: update
 
+IS_CLOUD_ENV: ${IS_PROD:false}
+
 gg:
   jte:
     development-mode: ${JTE_DEV_MODE:true}
