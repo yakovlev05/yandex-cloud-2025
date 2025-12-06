@@ -43,6 +43,17 @@
 
 # Запуск в облаке
 
+## Подготовка окружения
+
+1. Перейдите в облаке в **Container Registry**
+2. Создайте реестр
+3. Настройте авторизацию в docker registry: `yc container registry configure-docker`
+4. Скачайте готовый образ из github: `docker pull ghcr.io/yakovlev05/yandex-cloud-2025:main`
+5. Измените tag:
+   `docker tag ghcr.io/yakovlev05/yandex-cloud-2025:main cr.yandex/<твой_registry_id>/yandex-cloud-2025:main`
+6. Загрузите образ в Яндекс: `docker push cr.yandex/<твой_registry_id>/yandex-cloud-2025:main`
+7. Проверьте, что образ загружен
+
 ## Установка и [настройка](https://yandex.cloud/ru/docs/tutorials/infrastructure-management/terraform-quickstart) terraform
 
 1. Перейти на сайт [terraform](https://developer.hashicorp.com/terraform/install) и скачать под нужную ОС.
