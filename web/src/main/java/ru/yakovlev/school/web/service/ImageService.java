@@ -14,7 +14,7 @@ import java.util.Optional;
 @Service
 public class ImageService {
 
-//    private final ImageRepository imageRepository;
+    private final ImageRepository imageRepository;
     private final SqsClient sqsClient;
 
 
@@ -24,11 +24,10 @@ public class ImageService {
     }
 
     public void save(Image image) {
-//        imageRepository.save(image);
+        imageRepository.save(image);
     }
 
     public Optional<Image> getExistsById(String id) {
-//        return imageRepository.findByIdAndStatusNot(id, ImageStatus.DELETED);
-        return null;
+        return imageRepository.findByIdAndStatusNot(id, ImageStatus.DELETED);
     }
 }

@@ -13,7 +13,6 @@ import java.net.URI;
  * AWS SQS - очереди сообщений
  */
 @Configuration
-@EnableAutoConfiguration(exclude={DataSourceAutoConfiguration.class})
 public class SqsConfig {
 
     @Bean

@@ -2,7 +2,7 @@ spring:
   application:
     name: web
   datasource:
-    url: jdbc:ydb:grpc://localhost:2136/local
+    url: jdbc:ydb:${YDB_URL:grpc://localhost:2136/local}
     driver-class-name: tech.ydb.jdbc.YdbDriver
   jpa:
     properties:
@@ -10,9 +10,6 @@ spring:
         dialect: tech.ydb.hibernate.dialect.YdbDialect
     hibernate:
       ddl-auto: update
-
-server:
-  port: ${PORT:8080}
 
 gg:
   jte:
