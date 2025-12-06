@@ -15,7 +15,7 @@ IS_CLOUD_ENV: ${IS_PROD:false}
 
 gg:
   jte:
-    development-mode: ${JTE_DEV_MODE:true}
+    development-mode: false
     template-location: src/main/jte
     template-suffix: .jte
-
+    use-precompiled-templates: true
