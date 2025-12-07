@@ -21,7 +21,6 @@
         @for(ImageInfo image : images)
             <div class="image-box">
                 <img src="${image.url()}" width="500" alt="изображение"/>
-                width="600" alt="изображение"/>
                 <p>${image.description()}</p>
                 <a href="/images/${image.id()}">Посмотреть</a>
             </div>

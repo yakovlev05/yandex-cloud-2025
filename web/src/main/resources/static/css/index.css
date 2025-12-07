@@ -10,3 +10,9 @@ body {
     align-self: center;
     justify-content: center;
 }
+
+.button-box{
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
