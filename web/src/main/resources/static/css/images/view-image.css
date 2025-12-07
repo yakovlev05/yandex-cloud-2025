@@ -5,3 +5,33 @@ body {
     height: 100vh;
     margin: 0;
 }
+
+.image-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+}
+
+.prompt-paragraph {
+    font-style: italic;
+}
+
+.button-container {
+    width: 100%;
+
+    display: flex;
+    justify-content: end;
+}
+
+.form-edit{
+    margin-top: 10px;
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.hidden {
+    display: none;
+}

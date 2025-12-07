@@ -10,6 +10,7 @@ import software.amazon.awssdk.services.sqs.SqsClient;
 import software.amazon.awssdk.services.sqs.model.GetQueueUrlRequest;
 import software.amazon.awssdk.services.sqs.model.SendMessageRequest;
 
+import java.util.List;
 import java.util.Optional;
 
 @RequiredArgsConstructor
@@ -31,7 +32,6 @@ public class ImageService {
     public void generate(Image image) {
         save(image);
         sendGenerateMessage(image);
-        //https://docs.aws.amazon.com/sdk-for-java/latest/developer-guide/java_sqs_code_examples.html
     }
 
     public void save(Image image) {
@@ -52,6 +52,14 @@ public class ImageService {
                 .toString();
     }
 
+    public Optional<Image> getById(String id) {
+        return imageRepository.findById(id);
+    }
+
+    public List<Image> getGalleryImages(){
+        return imageRepository.findAllByStatusIn(List.of(ImageStatus.SUCCESS));
+    }
+
     private void sendGenerateMessage(Image image) {
         GetQueueUrlRequest getQueueRequest = GetQueueUrlRequest.builder()
                 .queueName(generateQueue)
@@ -65,9 +73,5 @@ public class ImageService {
                 .build();
 
         sqsClient.sendMessage(sendMessageRequest);
-    }
-
-    public Optional<Image> getById(String id) {
-        return imageRepository.findById(id);
     }
 }
