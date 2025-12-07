@@ -25,7 +25,12 @@ public class ImageController {
     @GetMapping("/{id}")
     public String viewImage(Model model, @PathVariable String id) {
         Image image = imageService.getExistsById(id).orElse(null);
+
         model.addAttribute("image", image);
+        if (image != null) {
+            model.addAttribute("imageUrl", imageService.buildUrl(image));
+        }
+
         return "viewImage";
     }
 

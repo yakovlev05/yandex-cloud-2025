@@ -19,3 +19,10 @@ gg:
     template-location: src/main/jte
     template-suffix: .jte
     use-precompiled-templates: true
+
+s3:
+  bucket: ${S3_BUCKET}
+
+queue:
+  generate-image: ${QUEUE_GENERATE_IMAGE}
+  done-image: ${QUEUE_DONE_IMAGE}

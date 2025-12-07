@@ -71,6 +71,16 @@ public class SqsConfig {
                         .log();
                 return SendMessageResponse.builder().build();
             }
+
+            @Override
+            public ReceiveMessageResponse receiveMessage(ReceiveMessageRequest receiveMessageRequest)
+                    throws UnsupportedOperationException, OverLimitException, RequestThrottledException,
+                    QueueDoesNotExistException, InvalidSecurityException, KmsDisabledException,
+                    KmsInvalidStateException, KmsNotFoundException, KmsOptInRequiredException, KmsThrottledException,
+                    KmsAccessDeniedException, KmsInvalidKeyUsageException, InvalidAddressException,
+                    AwsServiceException, SdkClientException, SqsException {
+                return ReceiveMessageResponse.builder().build();
+            }
         };
     }
 

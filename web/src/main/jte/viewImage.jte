@@ -2,6 +2,7 @@
 @import ru.yakovlev.school.web.entity.ImageStatus
 
 @param Image image
+@param String imageUrl
 
 !{String description = image == null ? "не найдено" : image.getDescription();}
 
@@ -24,7 +25,7 @@
     <p>Изображение пока не готово, пожалуйста, подождите...</p>
 @else
     <div>
-        <img src="/s3/images/${image.getId()}.jpg" alt="${image.getDescription()}"/>
+        <img src="${imageUrl}" alt="${image.getDescription()}"/>
         <p>${image.getDescription()}</p>
     </div>
 @endif

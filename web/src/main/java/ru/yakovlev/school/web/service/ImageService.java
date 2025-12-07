@@ -1,6 +1,7 @@
 package ru.yakovlev.school.web.service;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import ru.yakovlev.school.web.entity.Image;
 import ru.yakovlev.school.web.entity.ImageStatus;
@@ -15,7 +16,13 @@ import java.util.Optional;
 @Service
 public class ImageService {
 
-    private static final String GENERATE_QUEUE = "generate-image";
+    private static final String S3_YANDEX_DOMAIN = "https://storage.yandexcloud.net/";
+
+    @Value("${queue.generate-image}")
+    private String generateQueue;
+
+    @Value("${s3.bucket}")
+    private String bucket;
 
     private final ImageRepository imageRepository;
     private final SqsClient sqsClient;
@@ -35,9 +42,18 @@ public class ImageService {
         return imageRepository.findByIdAndStatusNot(id, ImageStatus.DELETED);
     }
 
+    public String buildUrl(Image image) {
+        return new StringBuilder(S3_YANDEX_DOMAIN)
+                .append(bucket)
+                .append("/")
+                .append(image.getId())
+                .append("jpg")
+                .toString();
+    }
+
     private void sendGenerateMessage(Image image) {
         GetQueueUrlRequest getQueueRequest = GetQueueUrlRequest.builder()
-                .queueName(GENERATE_QUEUE)
+                .queueName(generateQueue)
                 .build();
 
         String queueUrl = sqsClient.getQueueUrl(getQueueRequest).queueUrl();
@@ -48,5 +64,9 @@ public class ImageService {
                 .build();
 
         sqsClient.sendMessage(sendMessageRequest);
+    }
+
+    public Optional<Image> getById(String id) {
+        return imageRepository.findById(id);
     }
 }
