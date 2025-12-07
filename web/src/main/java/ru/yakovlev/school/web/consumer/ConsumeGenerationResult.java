@@ -10,10 +10,7 @@ import ru.yakovlev.school.web.entity.Image;
 import ru.yakovlev.school.web.entity.ImageStatus;
 import ru.yakovlev.school.web.service.ImageService;
 import software.amazon.awssdk.services.sqs.SqsClient;
-import software.amazon.awssdk.services.sqs.model.GetQueueUrlRequest;
-import software.amazon.awssdk.services.sqs.model.Message;
-import software.amazon.awssdk.services.sqs.model.ReceiveMessageRequest;
-import software.amazon.awssdk.services.sqs.model.ReceiveMessageResponse;
+import software.amazon.awssdk.services.sqs.model.*;
 
 import java.util.concurrent.TimeUnit;
 
@@ -55,12 +52,26 @@ public class ConsumeGenerationResult {
     }
 
     private void processMessage(Message message) {
-        log.info("Processing message: {}", message.body());
+        try {
+            log.info("Processing message: {}", message.body());
 
-        String id = parseId(message.body());
-        boolean isSuccess = parseSuccess(message.body());
+            String id = parseId(message.body());
+            boolean isSuccess = parseSuccess(message.body());
 
-        imageService.getById(id).ifPresent(image -> processImage(image, isSuccess));
+            imageService.getById(id).ifPresent(image -> processImage(image, isSuccess));
+        } catch (Exception e) {
+            log.atError()
+                    .setMessage("Error processing message. Message: {}. Error: {}.")
+                    .addArgument(message.body())
+                    .addArgument(e.getMessage())
+                    .setCause(e)
+                    .log();
+        } finally {
+            sqsClient.deleteMessage(DeleteMessageRequest.builder()
+                    .queueUrl(queueUrl)
+                    .receiptHandle(message.receiptHandle())
+                    .build());
+        }
     }
 
     private void processImage(Image image, boolean isSuccess) {
