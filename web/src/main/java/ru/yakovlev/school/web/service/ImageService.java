@@ -47,6 +47,7 @@ public class ImageService {
                 .append(bucket)
                 .append("/")
                 .append(image.getId())
+                .append(".")
                 .append("jpg")
                 .toString();
     }
