@@ -81,11 +81,11 @@ public class ConsumeGenerationResult {
     }
 
     private String parseId(String raw) {
-        return raw.split("\\|\\|")[0];
+        return raw.split("\\|\\|")[0].split("=")[1];
     }
 
     private boolean parseSuccess(String raw) {
-        return Boolean.parseBoolean(raw.split("\\|\\|")[1]);
+        return Boolean.parseBoolean(raw.split("\\|\\|")[1].split("=")[1]);
     }
 
 }
