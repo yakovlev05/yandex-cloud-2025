@@ -49,18 +49,41 @@ provider "yandex" {
 
 
 # Настройка IAM
+# role DOCKER
 resource "yandex_iam_service_account" "docker" {
   name        = "docker"
   description = "service account for web application in docker"
 }
 
-resource "yandex_resourcemanager_folder_iam_member" "docker-role" {
+resource "yandex_resourcemanager_folder_iam_member" "docker-ydb-editor" {
   folder_id = var.folder_id
 
-  role   = "editor"
+  role   = "ydb.editor"
   member = "serviceAccount:${yandex_iam_service_account.docker.id}"
 }
 
+resource "yandex_resourcemanager_folder_iam_member" "docker-ymq-reader" {
+  folder_id = var.folder_id
+
+  role   = "ymq.reader"
+  member = "serviceAccount:${yandex_iam_service_account.docker.id}"
+}
+
+resource "yandex_resourcemanager_folder_iam_member" "docker-ymq-writer" {
+  folder_id = var.folder_id
+
+  role   = "ymq.writer"
+  member = "serviceAccount:${yandex_iam_service_account.docker.id}"
+}
+
+resource "yandex_resourcemanager_folder_iam_member" "docker-container" {
+  folder_id = var.folder_id
+
+  role   = "container-registry.images.puller"
+  member = "serviceAccount:${yandex_iam_service_account.docker.id}"
+}
+
+# role DOCKER-GROUP
 resource "yandex_iam_service_account" "docker-group" {
   name        = "docker-group"
   description = "service account for web application in docker"
@@ -73,39 +96,50 @@ resource "yandex_resourcemanager_folder_iam_member" "docker-group-role" {
   member = "serviceAccount:${yandex_iam_service_account.docker-group.id}"
 }
 
+# role FUNC
 resource "yandex_iam_service_account" "func" {
   name        = "func"
   description = "service account for cloud function"
 }
 
-resource "yandex_resourcemanager_folder_iam_member" "func-role" {
+resource "yandex_resourcemanager_folder_iam_member" "func-role-ymq-reader" {
   folder_id = var.folder_id
 
-  role   = "editor"
+  role   = "ymq.reader"
   member = "serviceAccount:${yandex_iam_service_account.func.id}"
 }
 
-resource "yandex_iam_service_account" "read-queue" {
-  name        = "read-queue"
-  description = "service account for read queue"
-}
-
-resource "yandex_resourcemanager_folder_iam_member" "read-queue-role" {
+resource "yandex_resourcemanager_folder_iam_member" "func-role-ymq-writer" {
   folder_id = var.folder_id
 
-  role   = "editor"
-  member = "serviceAccount:${yandex_iam_service_account.read-queue.id}"
+  role   = "ymq.writer"
+  member = "serviceAccount:${yandex_iam_service_account.func.id}"
 }
 
+resource "yandex_resourcemanager_folder_iam_member" "func-role-s3" {
+  folder_id = var.folder_id
+
+  role   = "storage.uploader"
+  member = "serviceAccount:${yandex_iam_service_account.func.id}"
+}
+
+# role TRIGGER
 resource "yandex_iam_service_account" "trigger" {
   name        = "trigger"
-  description = "service account for trigger - invoke func"
+  description = "service account for trigger - invoke func & read queue"
 }
 
-resource "yandex_resourcemanager_folder_iam_member" "trigger-role" {
+resource "yandex_resourcemanager_folder_iam_member" "trigger-ymq-admin" {
   folder_id = var.folder_id
 
-  role   = "editor"
+  role   = "ymq.admin"
+  member = "serviceAccount:${yandex_iam_service_account.trigger.id}"
+}
+
+resource "yandex_resourcemanager_folder_iam_member" "trigger-invoker" {
+  folder_id = var.folder_id
+
+  role   = "functions.functionInvoker"
   member = "serviceAccount:${yandex_iam_service_account.trigger.id}"
 }
 
@@ -128,11 +162,24 @@ data "yandex_vpc_subnet" "common-d" {
 }
 
 # Настройка ключей доступа
+# role FUNC
+resource "yandex_iam_service_account_static_access_key" "func-static-key" {
+  service_account_id = yandex_iam_service_account.func.id
+  description        = "key for serverless function: s3, ymq"
+}
+
+# role DOCKER
+resource "yandex_iam_service_account_static_access_key" "docker-static-key" {
+  service_account_id = yandex_iam_service_account.docker.id
+  description        = "key for serverless function: s3, ymq"
+}
+
+# for admin
 data "yandex_iam_service_account" "terraform" {
   name = "terraform"
 }
 
-resource "yandex_iam_service_account_static_access_key" "static-key" {
+resource "yandex_iam_service_account_static_access_key" "admin-static-key" {
   service_account_id = data.yandex_iam_service_account.terraform.id
   description        = "key to create queue resource and sending messages"
 }
@@ -151,24 +198,24 @@ resource "yandex_ydb_database_serverless" "ydb" {
 
 # Настройка очереди
 resource "yandex_message_queue" "generate-image" {
-  depends_on = [yandex_iam_service_account_static_access_key.static-key]
+  depends_on = [yandex_iam_service_account_static_access_key.admin-static-key]
 
   name                      = "generate-image"
   message_retention_seconds = 86400
   receive_wait_time_seconds = 20
-  access_key                = yandex_iam_service_account_static_access_key.static-key.access_key
-  secret_key                = yandex_iam_service_account_static_access_key.static-key.secret_key
+  access_key                = yandex_iam_service_account_static_access_key.admin-static-key.access_key
+  secret_key                = yandex_iam_service_account_static_access_key.admin-static-key.secret_key
 
 }
 
 resource "yandex_message_queue" "image-done" {
-  depends_on = [yandex_iam_service_account_static_access_key.static-key]
+  depends_on = [yandex_iam_service_account_static_access_key.admin-static-key]
 
   name                      = "image-done"
   message_retention_seconds = 86400
   receive_wait_time_seconds = 20
-  access_key                = yandex_iam_service_account_static_access_key.static-key.access_key
-  secret_key                = yandex_iam_service_account_static_access_key.static-key.secret_key
+  access_key                = yandex_iam_service_account_static_access_key.admin-static-key.access_key
+  secret_key                = yandex_iam_service_account_static_access_key.admin-static-key.secret_key
 }
 
 
@@ -179,11 +226,15 @@ data "yandex_container_registry" "yandex-cloud-2025" {
 
 resource "yandex_compute_instance_group" "app" {
   depends_on = [
-    yandex_resourcemanager_folder_iam_member.docker-role,
+    yandex_resourcemanager_folder_iam_member.docker-ydb-editor,
+    yandex_resourcemanager_folder_iam_member.docker-ymq-reader,
+    yandex_resourcemanager_folder_iam_member.docker-ymq-writer,
+    yandex_resourcemanager_folder_iam_member.docker-container,
+
     yandex_resourcemanager_folder_iam_member.docker-group-role,
     yandex_ydb_database_serverless.ydb,
     yandex_message_queue.generate-image,
-    yandex_iam_service_account_static_access_key.static-key,
+    yandex_iam_service_account_static_access_key.docker-static-key,
     yandex_message_queue.image-done
   ]
 
@@ -229,7 +280,8 @@ resource "yandex_compute_instance_group" "app" {
     service_account_id = yandex_iam_service_account.docker.id
 
 
-    metadata = { # УДАЛИТЬ
+    metadata = {
+      # УДАЛИТЬ
       docker-container-declaration = <<-EOT
         spec:
           containers:
@@ -240,9 +292,9 @@ resource "yandex_compute_instance_group" "app" {
             - name: IS_PROD
               value: true
             - name: AWS_ACCESS_KEY_ID
-              value: ${yandex_iam_service_account_static_access_key.static-key.access_key}
+              value: ${yandex_iam_service_account_static_access_key.docker-static-key.access_key}
             - name: AWS_SECRET_ACCESS_KEY
-              value: ${yandex_iam_service_account_static_access_key.static-key.secret_key}
+              value: ${yandex_iam_service_account_static_access_key.docker-static-key.secret_key}
             - name: QUEUE_GENERATE_IMAGE
               value: ${yandex_message_queue.generate-image.name}
             - name: QUEUE_DONE_IMAGE
@@ -329,7 +381,11 @@ resource "yandex_lb_network_load_balancer" "app-nlb" {
 
 # Настройка serverless function + trigger
 resource "yandex_function" "generate-image" {
-  depends_on = [yandex_resourcemanager_folder_iam_member.func-role]
+  depends_on = [
+    yandex_resourcemanager_folder_iam_member.func-role-ymq-reader,
+    yandex_resourcemanager_folder_iam_member.func-role-ymq-writer,
+    yandex_resourcemanager_folder_iam_member.func-role-s3
+  ]
 
   name               = "generate-image"
   description        = "func for generate image and save in s3"
@@ -350,8 +406,8 @@ resource "yandex_function" "generate-image" {
   environment = {
     CF_ACCOUNT_ID            = var.cf_account_id,
     CF_AUTH_TOKEN            = var.cf_auth_token,
-    AWS_ACCESS_KEY           = yandex_iam_service_account_static_access_key.static-key.access_key,
-    AWS_SECRET_KEY           = yandex_iam_service_account_static_access_key.static-key.secret_key,
+    AWS_ACCESS_KEY           = yandex_iam_service_account_static_access_key.func-static-key.access_key,
+    AWS_SECRET_KEY           = yandex_iam_service_account_static_access_key.func-static-key.secret_key,
     S3_BUCKET_NAME           = var.bucket-images
     QUEUE_NAME_DONE_GENERATE = yandex_message_queue.image-done.name
   }
@@ -370,8 +426,8 @@ resource "yandex_function" "generate-image" {
 
 resource "yandex_function_trigger" "generate-image" {
   depends_on = [
-    yandex_resourcemanager_folder_iam_member.read-queue-role,
-    yandex_resourcemanager_folder_iam_member.trigger-role,
+    yandex_resourcemanager_folder_iam_member.trigger-invoker,
+    yandex_resourcemanager_folder_iam_member.trigger-ymq-admin,
     yandex_message_queue.generate-image,
     yandex_function.generate-image,
   ]
@@ -382,7 +438,7 @@ resource "yandex_function_trigger" "generate-image" {
   message_queue {
     batch_cutoff       = "0"
     queue_id           = yandex_message_queue.generate-image.arn
-    service_account_id = yandex_iam_service_account.read-queue.id
+    service_account_id = yandex_iam_service_account.trigger.id
     batch_size         = "1"
   }
 
