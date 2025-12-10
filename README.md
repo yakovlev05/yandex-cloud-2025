@@ -192,3 +192,5 @@ Cloudflare.
 
 **Роли:** `functions.functionInvoker`, `ymq.admin`
 
+# Архитектура
+![architecture.png](architecture.png)
