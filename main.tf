@@ -274,6 +274,7 @@ resource "yandex_compute_instance_group" "app" {
         data.yandex_vpc_subnet.common-d.id
       ]
       ipv4 = true
+      nat  = true
     }
 
     service_account_id = yandex_iam_service_account.docker.id
