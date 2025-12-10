@@ -1,3 +1,6 @@
+https://github.com/user-attachments/assets/56d254f0-73d1-4d8e-8e21-19d1a254cb26
+
+
 # Требования проекта
 
 1. Реализовывать полный набор CRUD-операций над какими либо данными (Create, Read, Update, Delete).
