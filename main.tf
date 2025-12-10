@@ -274,14 +274,12 @@ resource "yandex_compute_instance_group" "app" {
         data.yandex_vpc_subnet.common-d.id
       ]
       ipv4 = true
-      nat  = true # УДАЛИТЬ !!!!!!!
     }
 
     service_account_id = yandex_iam_service_account.docker.id
 
 
     metadata = {
-      # УДАЛИТЬ
       docker-container-declaration = <<-EOT
         spec:
           containers:
@@ -302,21 +300,6 @@ resource "yandex_compute_instance_group" "app" {
             - name: S3_BUCKET
               value: ${var.bucket-images}
           restartPolicy: Always
-      EOT
-
-      ssh-keys  = "yakovlev:ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIAbrWizNVeMOhrHoIPvjOr/I5eqcz/iFOpiwOSV6xpea alexe@alex"
-      user-data = <<-EOT
-        #cloud-config
-        datasource:
-         Ec2:
-          strict_id: false
-        ssh_pwauth: no
-        users:
-        - name: yakovlev
-          sudo: ALL=(ALL) NOPASSWD:ALL
-          shell: /bin/bash
-          ssh_authorized_keys:
-          - ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIAbrWizNVeMOhrHoIPvjOr/I5eqcz/iFOpiwOSV6xpea alexe@alex
       EOT
     }
   }
