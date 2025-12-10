@@ -192,5 +192,13 @@ Cloudflare.
 
 **Роли:** `functions.functionInvoker`, `ymq.admin`
 
-# Архитектура
+## Архитектура
+
 ![architecture.png](architecture.png)
+
+## Структура репозитория
+
+- `lambda` - serverless функция для генерации изображений
+- `web` - фронт + бэк, обработка запросов клиента
+- `func.zip` - функция, упакованная в zip (для работы terraform out of box)
+- `main.tf` - конфиг terraform
